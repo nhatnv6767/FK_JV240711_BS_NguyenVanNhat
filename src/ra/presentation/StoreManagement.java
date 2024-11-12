@@ -115,7 +115,7 @@ public class StoreManagement {
         product.displayData();
 
         Map<Integer, UpdateOption<Products>> updateOptions = new HashMap<>();
-        updateOptions.put(1, new UpdateOption<>("Update product name", (p, s) -> p.setProductName(validator.getUniqueProductNameInput(s, "Enter new product name: "))));
+        updateOptions.put(1, new UpdateOption<>("Update product name", (p, s) -> p.setProductName(validator.getUniqueProductNameInput(s, "Enter new product name: ", productId))));
         updateOptions.put(2, new UpdateOption<>("Update stock", (p, s) -> p.setStock(validator.getPositiveIntInput(s, "Enter new stock: "))));
         updateOptions.put(3, new UpdateOption<>("Update cost price", (p, s) -> p.setCostPrice(validator.getPositiveDoubleInput(s, "Enter new cost price: "))));
         updateOptions.put(4, new UpdateOption<>("Update selling price", (p, s) -> p.setSellingPrice(validator.getPositiveDoubleInput(s, "Enter new selling price: "))));
@@ -247,7 +247,7 @@ public class StoreManagement {
         category.displayData();
 
         Map<Integer, UpdateOption<Categories>> updateOptions = new HashMap<>();
-        updateOptions.put(1, new UpdateOption<>("Update category name", (c, s) -> c.setCategoryName(validator.getUniqueCategoryNameInput(s, "Enter new category name: "))));
+        updateOptions.put(1, new UpdateOption<>("Update category name", (c, s) -> c.setCategoryName(validator.getUniqueCategoryNameInput(s, "Enter new category name: ", categoryId))));
 
 
         updateEntity(category, scanner, categoriesBusiness::update, updateOptions);

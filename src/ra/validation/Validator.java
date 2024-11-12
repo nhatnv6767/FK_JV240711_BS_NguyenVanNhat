@@ -234,55 +234,55 @@ public class Validator {
         return categoryId;
     }
 
-    public boolean isCategoryNameDuplicate(String categoryName) {
+    public boolean isCategoryNameDuplicate(String categoryName, int currentCategoryId) {
         CategoriesBusiness categoriesBusiness = new CategoriesBusiness();
         Categories[] categories = categoriesBusiness.getAll();
         for (Categories category : categories) {
-            if (category.getCategoryName().equalsIgnoreCase(categoryName)) {
+            if (category.getCategoryName().equalsIgnoreCase(categoryName) && category.getCategoryId() != currentCategoryId) {
                 return true;
             }
         }
         return false;
     }
 
-    public boolean isProductNameDuplicate(String productName) {
+    public boolean isProductNameDuplicate(String productName, int currentProductId) {
         ProductsBusiness productsBusiness = new ProductsBusiness();
         Products[] products = productsBusiness.getAll();
         for (Products product : products) {
-            if (product.getProductName().equalsIgnoreCase(productName)) {
+            if (product.getProductName().equalsIgnoreCase(productName) && product.getProductId() != currentProductId) {
                 return true;
             }
         }
         return false;
     }
 
-    public String getUniqueCategoryNameInput(Scanner scanner, String prompt) {
+    public String getUniqueCategoryNameInput(Scanner scanner, String prompt, int currentCategoryId) {
         String input;
         do {
             input = getNonEmptyStringInput(scanner, prompt, 50);
             if (input.isEmpty()) {
                 System.err.println("Tên danh mục không được để trống.");
-            } else if (isCategoryNameDuplicate(input)) {
+            } else if (isCategoryNameDuplicate(input, currentCategoryId)) {
                 System.err.println("Tên danh mục đã tồn tại.");
             } else {
                 break;
             }
-        } while (isCategoryNameDuplicate(input));
+        } while (isCategoryNameDuplicate(input, currentCategoryId));
         return input;
     }
 
-    public String getUniqueProductNameInput(Scanner scanner, String prompt) {
+    public String getUniqueProductNameInput(Scanner scanner, String prompt, int currentProductId) {
         String input;
         do {
             input = getNonEmptyStringInput(scanner, prompt, 20);
             if (input.isEmpty()) {
                 System.err.println("Tên sản phẩm không được để trống.");
-            } else if (isProductNameDuplicate(input)) {
+            } else if (isProductNameDuplicate(input, currentProductId)) {
                 System.err.println("Tên sản phẩm đã tồn tại.");
             } else {
                 break;
             }
-        } while (isProductNameDuplicate(input));
+        } while (isProductNameDuplicate(input, currentProductId));
         return input;
     }
 }

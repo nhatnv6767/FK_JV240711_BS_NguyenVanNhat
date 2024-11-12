@@ -1,8 +1,8 @@
 # NGUYEN VAN NHAT
 # FK_JV240711_BS_NguyenVanNhat
 
-create database if not exists shoppping_management;
-use shoppping_management;
+create database if not exists shopping_management;
+use shopping_management;
 
 
 CREATE TABLE Categories(

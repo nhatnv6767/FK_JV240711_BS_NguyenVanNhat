@@ -1,10 +1,10 @@
 package ra.presentation;
 
 public enum CategoriesMenuEnum {
-    LIST(1, "List all products"),
-    ADD(2, "Add new product"),
-    UPDATE(3, "Update product"),
-    DELETE(4, "Delete product"),
+    LIST(1, "List all categories"),
+    ADD(2, "Add new category"),
+    UPDATE(3, "Update category"),
+    DELETE(4, "Delete category"),
     STATISTIC(5, "Show statistics of products by category"),
     BACK(0, "Back to main menu");
 

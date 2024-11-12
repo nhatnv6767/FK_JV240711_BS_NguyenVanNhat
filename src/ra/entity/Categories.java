@@ -46,7 +46,7 @@ public class Categories implements IStoreManager {
 
     @Override
     public void inputData(Scanner scanner, Validator validator) {
-        setCategoryName(validator.getUniqueCategoryNameInput(scanner, "Enter category name: "));
+        setCategoryName(validator.getUniqueCategoryNameInput(scanner, "Enter category name: ", -1));
         setCategoryStatus(true);
     }
 
