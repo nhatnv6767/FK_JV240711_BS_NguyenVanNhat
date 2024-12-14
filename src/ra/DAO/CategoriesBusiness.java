@@ -84,6 +84,15 @@ public class CategoriesBusiness implements DAOInterface<Category> {
             callSt.setInt(1, categories.getCategoryId());
             callSt.executeUpdate();
             System.out.println("Category deleted successfully");
+        } catch (SQLException e) {
+
+            if (e.getMessage().contains("Cannot delete category with existing books")) {
+                System.err.println("Cannot delete category with existing books");
+            } else {
+                e.printStackTrace();
+            }
+
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
