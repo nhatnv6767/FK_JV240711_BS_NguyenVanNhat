@@ -8,17 +8,14 @@ public class Categories implements IStoreManager {
 
     private int categoryId;
     private String categoryName;
-    private boolean categoryStatus;
 
     public Categories() {
     }
 
-    public Categories(int categoryId, String categoryName, boolean categoryStatus) {
+    public Categories(int categoryId, String categoryName) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
-        this.categoryStatus = categoryStatus;
     }
-
 
     public int getCategoryId() {
         return categoryId;
@@ -36,24 +33,14 @@ public class Categories implements IStoreManager {
         this.categoryName = categoryName;
     }
 
-    public boolean isCategoryStatus() {
-        return categoryStatus;
-    }
-
-    public void setCategoryStatus(boolean categoryStatus) {
-        this.categoryStatus = categoryStatus;
-    }
-
     @Override
     public void inputData(Scanner scanner, Validator validator) {
-        setCategoryName(validator.getUniqueCategoryNameInput(scanner, "Enter category name: ", -1));
-        setCategoryStatus(true);
+        setCategoryName(validator.getUniqueCategoryNameInput(scanner, "Enter category name:", -1));
     }
 
     @Override
     public void displayData() {
         System.out.println("Category ID: " + getCategoryId());
-        System.out.println("Category name: " + getCategoryName());
-        System.out.println("Category status: " + (isCategoryStatus() ? "Active" : "Inactive"));
+        System.out.println("Category Name: " + getCategoryName());
     }
 }

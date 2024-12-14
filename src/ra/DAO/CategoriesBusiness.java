@@ -2,16 +2,15 @@ package ra.DAO;
 
 import ra.database.JDBCUtil;
 import ra.entity.Categories;
-import ra.entity.CategoryStatistics;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CategoriesBusiness implements DAOInterface<Categories> {
-
     private Connection conn = null;
     private CallableStatement callSt = null;
 
@@ -23,18 +22,18 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
         new JDBCUtil().closeConnection(conn, callSt);
     }
 
-    private Categories mapCategory(ResultSet rs) throws Exception {
+    private Categories mapCategory(ResultSet rs) throws SQLException {
         Categories category = new Categories();
         category.setCategoryId(rs.getInt("category_id"));
         category.setCategoryName(rs.getString("category_name"));
-        category.setCategoryStatus(rs.getBoolean("category_status"));
         return category;
     }
 
+
     @Override
     public void insert(Categories categories) {
-        if (categories == null || !isValidCustomer(categories)) {
-            System.out.println("Invalid category information");
+        if (categories == null || !isValidCategory(categories)) {
+            System.out.println("Invalid category");
             return;
         }
 
@@ -49,12 +48,13 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
         } finally {
             closeConnection();
         }
+
     }
 
     @Override
     public void update(Categories categories) {
-        if (categories == null || !isValidCustomer(categories)) {
-            System.out.println("Invalid category information");
+        if (categories == null || !isValidCategory(categories)) {
+            System.out.println("Invalid category");
             return;
         }
 
@@ -75,10 +75,9 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
     @Override
     public void delete(Categories categories) {
         if (categories == null || categories.getCategoryId() <= 0) {
-            System.out.println("Invalid category information");
+            System.out.println("Invalid category");
             return;
         }
-
         try {
             openConnection();
             callSt = conn.prepareCall("{call delete_category(?)}");
@@ -94,6 +93,7 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
 
     @Override
     public Categories get(int id) {
+        // get_category_by_id
         try {
             openConnection();
             callSt = conn.prepareCall("{call get_category_by_id(?)}");
@@ -138,29 +138,25 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
         return categories.toArray(new Categories[0]);
     }
 
-    public List<CategoryStatistics> getProductsByCategory() {
-        List<CategoryStatistics> statistics = new ArrayList<>();
+    public List<Categories> searchCategories(String keyword) {
+        List<Categories> categories = new ArrayList<>();
         try {
             openConnection();
-            callSt = conn.prepareCall("{call count_products_by_category()}");
+            callSt = conn.prepareCall("{call search_categories(?)}");
+            callSt.setString(1, keyword);
             ResultSet rs = callSt.executeQuery();
             while (rs.next()) {
-                CategoryStatistics stat = new CategoryStatistics();
-                stat.setCategoryName(rs.getString("category_name"));
-                stat.setProductCount(rs.getInt("number_of_products"));
-                statistics.add(stat);
+                categories.add(mapCategory(rs));
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeConnection();
         }
-        return statistics;
+        return categories;
     }
 
-
-    private boolean isValidCustomer(Categories category) {
-        return category.getCategoryName() != null && !category.getCategoryName().trim().isEmpty()
-                ;
+    private boolean isValidCategory(Categories category) {
+        return category.getCategoryName() != null && !category.getCategoryName().trim().isEmpty();
     }
 }

@@ -1,23 +1,196 @@
-# NGUYEN VAN NHAT
-# FK_JV240711_BS_NguyenVanNhat
-create database if not exists shopping_management;
-use shopping_management;
+create database Exam_JavaCore_Books;
+use Exam_JavaCore_Books;
 
-CREATE TABLE Categories(
-                           category_id int primary key auto_increment,
-                           category_name varchar(50) not null unique ,
-                           category_status bit default 1
-)CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
-create table Products(
-                         product_id int primary key auto_increment,
-                         product_name varchar(20) not null unique ,
-                         stock int not null,
-    cost_price decimal(10,2) not null check ( cost_price > 0 ),
-    selling_price decimal(10,2) not null check ( selling_price > 0 ),
-    created_at datetime default current_timestamp,
-                     category_id int not null ,
-                         foreign key (category_id) references Categories(category_id)
+create table categories(
+    category_id int primary key auto_increment,
+    category_name varchar(100) not null unique
+);
 
-)CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+create table books(
+  book_id int primary key auto_increment,
+  book_title varchar(200) not null ,
+  author varchar(100) not null ,
+  publication_date DATE not null,
+  price float not null check ( price > 0 ),
+  category_id int not null ,
+  foreign key (category_id) references categories(category_id)
+);
 
+
+
+DELIMITER //
+
+CREATE PROCEDURE create_category(IN p_category_name VARCHAR(100))
+BEGIN
+    INSERT INTO categories(category_name) VALUES (p_category_name);
+END //
+
+CREATE PROCEDURE get_all_categories()
+BEGIN
+    SELECT * FROM categories ORDER BY category_id;
+END //
+
+CREATE PROCEDURE get_category_by_id(IN p_category_id INT)
+BEGIN
+    SELECT * FROM categories WHERE category_id = p_category_id;
+END //
+
+CREATE PROCEDURE update_category(IN p_category_id INT, IN p_category_name VARCHAR(100))
+BEGIN
+    UPDATE categories SET category_name = p_category_name WHERE category_id = p_category_id;
+END //
+
+CREATE PROCEDURE delete_category(IN p_category_id INT)
+BEGIN
+    DECLARE book_count INT;
+    SELECT COUNT(*) INTO book_count FROM books WHERE category_id = p_category_id;
+    
+    IF book_count = 0 THEN
+        DELETE FROM categories WHERE category_id = p_category_id;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot delete category with existing books';
+    END IF;
+END //
+
+CREATE PROCEDURE search_categories(IN p_category_name VARCHAR(100))
+BEGIN
+    SELECT * FROM categories 
+    WHERE category_name LIKE CONCAT('%', p_category_name, '%')
+    ORDER BY category_id;
+END //
+
+-- BOOK ----
+CREATE PROCEDURE create_book(
+    IN p_book_title VARCHAR(200),
+    IN p_author VARCHAR(100),
+    IN p_publication_date DATE,
+    IN p_price FLOAT,
+    IN p_category_id INT
+)
+BEGIN
+    INSERT INTO books(book_title, author, publication_date, price, category_id)
+    VALUES (p_book_title, p_author, p_publication_date, p_price, p_category_id);
+END //
+
+CREATE PROCEDURE get_all_books()
+BEGIN
+    SELECT b.*, c.category_name 
+    FROM books b
+    JOIN categories c ON b.category_id = c.category_id
+    ORDER BY b.book_id;
+END //
+
+CREATE PROCEDURE get_book_by_id(IN p_book_id INT)
+BEGIN
+    SELECT b.*, c.category_name 
+    FROM books b
+    JOIN categories c ON b.category_id = c.category_id
+    WHERE b.book_id = p_book_id;
+END //
+
+CREATE PROCEDURE update_book(
+    IN p_book_id INT,
+    IN p_book_title VARCHAR(200),
+    IN p_author VARCHAR(100),
+    IN p_publication_date DATE,
+    IN p_price FLOAT,
+    IN p_category_id INT
+)
+BEGIN
+    UPDATE books 
+    SET book_title = p_book_title,
+        author = p_author,
+        publication_date = p_publication_date,
+        price = p_price,
+        category_id = p_category_id
+    WHERE book_id = p_book_id;
+END //
+
+CREATE PROCEDURE delete_book(IN p_book_id INT)
+BEGIN
+    DELETE FROM books WHERE book_id = p_book_id;
+END //
+
+CREATE PROCEDURE get_books_by_category(IN p_category_id INT)
+BEGIN
+    SELECT b.*, c.category_name 
+    FROM books b
+    JOIN categories c ON b.category_id = c.category_id
+    WHERE b.category_id = p_category_id
+    ORDER BY b.book_id;
+END //
+
+CREATE PROCEDURE get_books_sorted(
+    IN sort_column VARCHAR(50),
+    IN sort_direction VARCHAR(4)
+)
+BEGIN
+    SET @query = CONCAT(
+        'SELECT b.*, c.category_name 
+         FROM books b
+         JOIN categories c ON b.category_id = c.category_id
+         ORDER BY ', sort_column, ' ', sort_direction
+    );
+    PREPARE stmt FROM @query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt;
+END //
+
+CREATE PROCEDURE search_books_advanced(
+    IN p_book_title VARCHAR(200),
+    IN p_author VARCHAR(100),
+    IN p_min_price FLOAT,
+    IN p_max_price FLOAT,
+    IN p_start_date DATE,
+    IN p_end_date DATE
+)
+BEGIN
+    SELECT b.*, c.category_name 
+    FROM books b
+    JOIN categories c ON b.category_id = c.category_id
+    WHERE (p_book_title IS NULL OR b.book_title LIKE CONCAT('%', p_book_title, '%'))
+        AND (p_author IS NULL OR b.author LIKE CONCAT('%', p_author, '%'))
+        AND (p_min_price IS NULL OR b.price >= p_min_price)
+        AND (p_max_price IS NULL OR b.price <= p_max_price)
+        AND (p_start_date IS NULL OR b.publication_date >= p_start_date)
+        AND (p_end_date IS NULL OR b.publication_date <= p_end_date)
+    ORDER BY b.book_id;
+END //
+
+DELIMITER ;
+
+
+
+
+
+INSERT INTO categories (category_name) VALUES
+('Lorem ipsum literature'),
+('Dolor sit philosophy'),
+('Amet consectetur fiction'),
+('Adipiscing elit science'),
+('Suspendisse history'),
+('Vestibulum technology');
+
+
+INSERT INTO books (book_title, author, publication_date, price, category_id) VALUES
+('Lorem Ipsum Dolor', 'Consectetur Adipiscing', '2022-01-15', 29.99, 1),
+('Sit Amet Collection', 'Vestibulum Suspendisse', '2021-05-20', 45.50, 1),
+('Elementum Tempus', 'Pellentesque Habitant', '2023-03-10', 35.75, 2),
+('Morbi Tristique', 'Senectus Netus', '2022-11-30', 52.25, 2),
+('Malesuada Fames', 'Turpis Egestas', '2023-07-05', 41.99, 3),
+('Primis Faucibus', 'Orci Luctus', '2021-09-22', 38.50, 3),
+('Ultrices Posuere', 'Cubilia Curae', '2023-01-18', 27.99, 4),
+('Nullam Vehicula', 'Ipsum Primis', '2022-06-14', 33.75, 4),
+('Varius Vel Pharetra', 'Augue Semper', '2023-04-30', 48.99, 5),
+('Porta Consequat', 'Mollis Integer', '2022-08-25', 39.99, 5),
+('Praesent Sapien', 'Massa Convallis', '2023-02-28', 55.50, 6),
+('Dapibus Dolor', 'Vivamus Elementum', '2021-12-10', 42.25, 6),
+('Semper Porta', 'Mattis Pulvinar', '2023-06-08', 37.99, 1),
+('Mollis Metus', 'Vestibulum Lorem', '2022-04-12', 44.50, 2),
+('Integer Aliquet', 'Consectetur Tempus', '2023-05-15', 31.75, 3),
+('Viverra Egestas', 'Pellentesque Tristique', '2022-07-20', 46.25, 4),
+('Sodales Ligula', 'Dignissim Convallis', '2023-08-01', 36.99, 5),
+('Aenean Lectus', 'Euismod Varius', '2022-10-05', 43.50, 6),
+('Proin Laoreet', 'Ultricies Integer', '2023-09-12', 49.99, 1),
+('Nulla Facilisi', 'Maecenas Tempus', '2022-03-28', 34.75, 2);
