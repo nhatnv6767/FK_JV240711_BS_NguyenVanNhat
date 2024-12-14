@@ -1,7 +1,7 @@
 package ra.DAO;
 
 import ra.database.JDBCUtil;
-import ra.entity.Categories;
+import ra.entity.Category;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategoriesBusiness implements DAOInterface<Categories> {
+public class CategoriesBusiness implements DAOInterface<Category> {
     private Connection conn = null;
     private CallableStatement callSt = null;
 
@@ -22,8 +22,8 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
         new JDBCUtil().closeConnection(conn, callSt);
     }
 
-    private Categories mapCategory(ResultSet rs) throws SQLException {
-        Categories category = new Categories();
+    private Category mapCategory(ResultSet rs) throws SQLException {
+        Category category = new Category();
         category.setCategoryId(rs.getInt("category_id"));
         category.setCategoryName(rs.getString("category_name"));
         return category;
@@ -31,7 +31,7 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
 
 
     @Override
-    public void insert(Categories categories) {
+    public void insert(Category categories) {
         if (categories == null || !isValidCategory(categories)) {
             System.out.println("Invalid category");
             return;
@@ -52,7 +52,7 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
     }
 
     @Override
-    public void update(Categories categories) {
+    public void update(Category categories) {
         if (categories == null || !isValidCategory(categories)) {
             System.out.println("Invalid category");
             return;
@@ -73,7 +73,7 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
     }
 
     @Override
-    public void delete(Categories categories) {
+    public void delete(Category categories) {
         if (categories == null || categories.getCategoryId() <= 0) {
             System.out.println("Invalid category");
             return;
@@ -92,7 +92,7 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
     }
 
     @Override
-    public Categories get(int id) {
+    public Category get(int id) {
         // get_category_by_id
         try {
             openConnection();
@@ -111,18 +111,18 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
     }
 
     @Override
-    public Categories get(String name) {
+    public Category get(String name) {
         return null;
     }
 
     @Override
-    public Categories get(Categories categories) {
+    public Category get(Category categories) {
         return null;
     }
 
     @Override
-    public Categories[] getAll() {
-        List<Categories> categories = new ArrayList<>();
+    public Category[] getAll() {
+        List<Category> categories = new ArrayList<>();
         try {
             openConnection();
             callSt = conn.prepareCall("{call get_all_categories()}");
@@ -135,11 +135,11 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
         } finally {
             closeConnection();
         }
-        return categories.toArray(new Categories[0]);
+        return categories.toArray(new Category[0]);
     }
 
-    public List<Categories> searchCategories(String keyword) {
-        List<Categories> categories = new ArrayList<>();
+    public List<Category> searchCategories(String keyword) {
+        List<Category> categories = new ArrayList<>();
         try {
             openConnection();
             callSt = conn.prepareCall("{call search_categories(?)}");
@@ -156,7 +156,7 @@ public class CategoriesBusiness implements DAOInterface<Categories> {
         return categories;
     }
 
-    private boolean isValidCategory(Categories category) {
+    private boolean isValidCategory(Category category) {
         return category.getCategoryName() != null && !category.getCategoryName().trim().isEmpty();
     }
 }

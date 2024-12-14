@@ -3,10 +3,11 @@ package ra.presentation;
 import ra.DAO.BookBusiness;
 import ra.DAO.CategoriesBusiness;
 import ra.entity.Book;
-import ra.entity.Categories;
+import ra.entity.Category;
 import ra.util.UpdateOption;
 import ra.validation.Validator;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
@@ -219,26 +220,61 @@ public class BookManagement {
         System.out.print("Min price (optional): ");
         String minPriceStr = scanner.nextLine().trim();
         if (!minPriceStr.isEmpty()) {
-            minPrice = Float.parseFloat(minPriceStr);
+            try {
+                float price = Float.parseFloat(minPriceStr);
+                if (price < 0) {
+                    System.err.println("Price cannot be negative. Using no minimum price");
+                } else {
+                    minPrice = price;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid price. Using no minimum price");
+            }
         }
         System.out.print("Max price (optional): ");
         String maxPriceStr = scanner.nextLine().trim();
         if (!maxPriceStr.isEmpty()) {
-            maxPrice = Float.parseFloat(maxPriceStr);
+            try {
+                float price = Float.parseFloat(maxPriceStr);
+                if (price < 0) {
+                    System.err.println("Price cannot be negative. Using no maximum price");
+                } else {
+                    maxPrice = price;
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid price. Using no maximum price");
+            }
+        }
+
+        if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+            System.err.println("Invalid price range. Using no price range");
+            minPrice = null;
+            maxPrice = null;
         }
 
         Date startDate = null;
         Date endDate = null;
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+
         System.out.print("Start date (optional, dd/MM/yyyy): ");
         String startDateStr = scanner.nextLine().trim();
         if (!startDateStr.isEmpty()) {
-            startDate = validator.getDateInput(scanner, "Enter start date (dd/MM/yyyy): ");
+            try {
+                startDate = sdf.parse(startDateStr);
+            } catch (ParseException e) {
+                System.err.println("Invalid date. Using no start date");
+            }
         }
 
         System.out.print("End date (optional, dd/MM/yyyy): ");
         String endDateStr = scanner.nextLine().trim();
         if (!endDateStr.isEmpty()) {
-            endDate = validator.getDateInput(scanner, "Enter end date (dd/MM/yyyy): ");
+            try {
+                endDate = sdf.parse(endDateStr);
+            } catch (ParseException e) {
+                System.err.println("Invalid date. Using no end date");
+            }
         }
 
         List<Book> books = bookBusiness.searchBooksAdvanced(title, author, minPrice, maxPrice, startDate, endDate);
@@ -252,6 +288,141 @@ public class BookManagement {
             System.out.println("====================================");
         }
     }
+
+
+//    CATEGORIES MENU
+
+    private static void categoriesMenu(Scanner scanner) {
+        int choice;
+        do {
+            System.out.println("*************CATEGORIES MANAGEMENT*************");
+            for (CategoryMenuEnum menu : CategoryMenuEnum.values()) {
+                System.out.println(menu.getValue() + ". " + menu.getDescription());
+            }
+            System.out.print("Please choose: ");
+            choice = validator.getIntInput(scanner);
+
+            switch (choice) {
+                case 1:
+                    displayAllCategories();
+                    break;
+                case 2:
+                    addCategory(scanner);
+                    break;
+                case 3:
+                    updateCategory(scanner);
+                    break;
+                case 4:
+                    deleteCategory(scanner);
+                    break;
+                case 5:
+                    searchCategories(scanner);
+                    break;
+                case 6:
+                    break;
+                default:
+                    System.err.println("Invalid choice. Please choose again");
+            }
+        } while (choice != 6);
+    }
+
+    private static void displayAllCategories() {
+        Category[] categories = categoriesBusiness.getAll();
+
+        if (categories.length == 0) {
+            System.err.println("No categories found");
+            return;
+        }
+
+        System.out.println("Category list:");
+        for (Category category : categories) {
+            category.displayData();
+            System.out.println("====================================");
+        }
+    }
+
+    private static void addCategory(Scanner scanner) {
+
+        System.out.print("Enter number of categories to add: ");
+        int n = validator.getIntInput(scanner);
+        for (int i = 0; i < n; i++) {
+            System.out.println("Category " + (i + 1));
+            Category category = new Category();
+            category.setCategoryName(validator.getUniqueCategoryNameInput(scanner, "Enter category name: ", -1));
+            categoriesBusiness.insert(category);
+        }
+    }
+
+
+    private static void updateCategory(Scanner scanner) {
+        System.out.print("Enter Category ID: ");
+        int categoryId = validator.getIntInput(scanner);
+        Category category = categoriesBusiness.get(categoryId);
+        if (category == null) {
+            System.err.println("Category not found");
+            return;
+        }
+
+        System.out.println("Category information:");
+        category.displayData();
+
+        Map<Integer, UpdateOption<Category>> updateOptions = new HashMap<>();
+        updateOptions.put(1, new UpdateOption<>("Update category name", (c, s) -> c.setCategoryName(validator.getUniqueCategoryNameInput(s, "Enter new category name: ", categoryId))));
+
+
+        updateEntity(category, scanner, categoriesBusiness::update, updateOptions);
+    }
+
+    private static void deleteCategory(Scanner scanner) {
+        int categoryId = validator.getPositiveIntInput(scanner, "Enter category ID: ");
+        Category category = categoriesBusiness.get(categoryId);
+        if (category == null) {
+            System.err.println("Category not found");
+            return;
+        }
+        categoriesBusiness.delete(category);
+    }
+
+    private static void searchCategories(Scanner scanner) {
+        System.out.print("Enter category name to search: ");
+        String keyword = scanner.nextLine();
+
+        List<Category> categories = categoriesBusiness.searchCategories(keyword);
+        if (categories.isEmpty()) {
+            System.err.println("No categories found");
+            return;
+        }
+
+        System.out.println("\nCategories found:");
+        for (Category category : categories) {
+            category.displayData();
+            System.out.println("====================================");
+        }
+    }
+
+
+    private static <T> void updateEntity(T entity, Scanner scanner, Consumer<T> updateFunction, Map<Integer, UpdateOption<T>> updateOptions) {
+        int choice;
+        do {
+            System.out.println("Choose field to update:");
+            updateOptions.forEach((key, value) -> System.out.println(key + ". " + value.getDescription()));
+            System.out.println("0. Cancel");
+            System.out.print("Please choose: ");
+            choice = validator.getIntInput(scanner);
+
+            if (choice != 0 && updateOptions.containsKey(choice)) {
+                updateOptions.get(choice).getAction().accept(entity, scanner);
+                System.out.println("Field updated successfully");
+            } else if (choice != 0) {
+                System.err.println("Invalid choice. Please choose again");
+            }
+        } while (choice != 0);
+
+        updateFunction.accept(entity);
+    }
+
+
+}
 
 
 //    private static void addProduct(Scanner scanner) {
@@ -348,137 +519,3 @@ public class BookManagement {
 //            System.out.println("====================================");
 //        }
 //    }
-
-//    CATEGORIES MENU
-
-    private static void categoriesMenu(Scanner scanner) {
-        int choice;
-        do {
-            System.out.println("*************CATEGORIES MANAGEMENT*************");
-            for (CategoryMenuEnum menu : CategoryMenuEnum.values()) {
-                System.out.println(menu.getValue() + ". " + menu.getDescription());
-            }
-            System.out.print("Please choose: ");
-            choice = validator.getIntInput(scanner);
-
-            switch (choice) {
-                case 1:
-                    displayAllCategories();
-                    break;
-                case 2:
-                    addCategory(scanner);
-                    break;
-                case 3:
-                    updateCategory(scanner);
-                    break;
-                case 4:
-                    deleteCategory(scanner);
-                    break;
-                case 5:
-                    searchCategories(scanner);
-                    break;
-                case 6:
-                    break;
-                default:
-                    System.err.println("Invalid choice. Please choose again");
-            }
-        } while (choice != 6);
-    }
-
-    private static void displayAllCategories() {
-        Categories[] categories = categoriesBusiness.getAll();
-
-        if (categories.length == 0) {
-            System.err.println("No categories found");
-            return;
-        }
-
-        System.out.println("Category list:");
-        for (Categories category : categories) {
-            category.displayData();
-            System.out.println("====================================");
-        }
-    }
-
-    private static void addCategory(Scanner scanner) {
-
-        System.out.print("Enter number of categories to add: ");
-        int n = validator.getIntInput(scanner);
-        for (int i = 0; i < n; i++) {
-            System.out.println("Category " + (i + 1));
-            Categories category = new Categories();
-            category.setCategoryName(validator.getUniqueCategoryNameInput(scanner, "Enter category name: ", -1));
-            categoriesBusiness.insert(category);
-        }
-    }
-
-
-    private static void updateCategory(Scanner scanner) {
-        System.out.print("Enter Category ID: ");
-        int categoryId = validator.getIntInput(scanner);
-        Categories category = categoriesBusiness.get(categoryId);
-        if (category == null) {
-            System.err.println("Category not found");
-            return;
-        }
-
-        System.out.println("Category information:");
-        category.displayData();
-
-        Map<Integer, UpdateOption<Categories>> updateOptions = new HashMap<>();
-        updateOptions.put(1, new UpdateOption<>("Update category name", (c, s) -> c.setCategoryName(validator.getUniqueCategoryNameInput(s, "Enter new category name: ", categoryId))));
-
-
-        updateEntity(category, scanner, categoriesBusiness::update, updateOptions);
-    }
-
-    private static void deleteCategory(Scanner scanner) {
-        int categoryId = validator.getPositiveIntInput(scanner, "Enter category ID: ");
-        Categories category = categoriesBusiness.get(categoryId);
-        if (category == null) {
-            System.err.println("Category not found");
-            return;
-        }
-        categoriesBusiness.delete(category);
-    }
-
-    private static void searchCategories(Scanner scanner) {
-        System.out.print("Enter category name to search: ");
-        String keyword = scanner.nextLine();
-
-        List<Categories> categories = categoriesBusiness.searchCategories(keyword);
-        if (categories.isEmpty()) {
-            System.out.println("No categories found");
-            return;
-        }
-
-        System.out.println("\nCategories found:");
-        for (Categories category : categories) {
-            category.displayData();
-            System.out.println("====================================");
-        }
-    }
-
-
-    private static <T> void updateEntity(T entity, Scanner scanner, Consumer<T> updateFunction, Map<Integer, UpdateOption<T>> updateOptions) {
-        int choice;
-        do {
-            System.out.println("Choose field to update:");
-            updateOptions.forEach((key, value) -> System.out.println(key + ". " + value.getDescription()));
-            System.out.println("0. Cancel");
-            System.out.print("Please choose: ");
-            choice = validator.getIntInput(scanner);
-
-            if (choice != 0 && updateOptions.containsKey(choice)) {
-                updateOptions.get(choice).getAction().accept(entity, scanner);
-                System.out.println("Field updated successfully");
-            } else if (choice != 0) {
-                System.err.println("Invalid choice. Please choose again");
-            }
-        } while (choice != 0);
-
-        updateFunction.accept(entity);
-    }
-
-
-}

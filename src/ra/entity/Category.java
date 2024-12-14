@@ -4,15 +4,15 @@ import ra.validation.Validator;
 
 import java.util.Scanner;
 
-public class Categories implements IStoreManager {
+public class Category implements IStoreManager {
 
     private int categoryId;
     private String categoryName;
 
-    public Categories() {
+    public Category() {
     }
 
-    public Categories(int categoryId, String categoryName) {
+    public Category(int categoryId, String categoryName) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
     }

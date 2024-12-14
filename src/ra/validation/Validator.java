@@ -1,10 +1,11 @@
 package ra.validation;
 
 import ra.DAO.CategoriesBusiness;
-import ra.entity.Categories;
+import ra.entity.Category;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -147,11 +148,27 @@ public class Validator {
     }
 
     public Date getDateInput(Scanner scanner, String prompt) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setLenient(false);
+        Calendar minDate = Calendar.getInstance();
+        Calendar maxDate = Calendar.getInstance();
+
+        minDate.set(1900, Calendar.JANUARY, 1);
+        maxDate.set(Calendar.getInstance().get(Calendar.YEAR) + 1, Calendar.DECEMBER, 31);
         while (true) {
             System.out.print(prompt);
             String input = scanner.nextLine().trim();
             try {
-                return dateFormat.parse(input);
+
+                Date date = dateFormat.parse(input);
+
+                if (date.before(minDate.getTime()) || date.after(maxDate.getTime())) {
+                    System.err.println("Vui lòng nhập ngày trong khoảng từ 01/01/1900 đến 31/12/" + Calendar.getInstance().get(Calendar.YEAR) + 1);
+                    continue;
+                }
+
+                return date;
             } catch (ParseException e) {
                 System.err.println("Vui lòng nhập theo định dạng dd/MM/yyyy");
             }
@@ -306,8 +323,8 @@ public class Validator {
 
     public boolean isCategoryNameDuplicate(String categoryName, int currentCategoryId) {
         CategoriesBusiness categoriesBusiness = new CategoriesBusiness();
-        Categories[] categories = categoriesBusiness.getAll();
-        for (Categories category : categories) {
+        Category[] categories = categoriesBusiness.getAll();
+        for (Category category : categories) {
             if (category.getCategoryName().equalsIgnoreCase(categoryName) && category.getCategoryId() != currentCategoryId) {
                 return true;
             }
