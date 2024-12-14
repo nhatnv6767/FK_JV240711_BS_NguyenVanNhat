@@ -2,7 +2,6 @@ package ra.DAO;
 
 import ra.database.JDBCUtil;
 import ra.entity.Categories;
-import ra.entity.CategoryStatistics;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

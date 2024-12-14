@@ -4,15 +4,11 @@ import ra.DAO.BookBusiness;
 import ra.DAO.CategoriesBusiness;
 import ra.entity.Book;
 import ra.entity.Categories;
-import ra.entity.CategoryStatistics;
 import ra.util.UpdateOption;
 import ra.validation.Validator;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.function.Consumer;
 
 
@@ -71,19 +67,19 @@ public class BookManagement {
                     viewBookDetail(scanner);
                     break;
                 case 4:
-                    System.out.println("Update book information");
+                    updateBook(scanner);
                     break;
                 case 5:
-                    System.out.println("Delete book");
+                    deleteBook(scanner);
                     break;
                 case 6:
-                    System.out.println("List books by category");
+                    listBooksByCategory(scanner);
                     break;
                 case 7:
-                    System.out.println("Sort books");
+                    sortBooks(scanner);
                     break;
                 case 8:
-                    System.out.println("Advanced search");
+                    advancedSearch(scanner);
                     break;
                 case 9:
                     break;
@@ -125,6 +121,136 @@ public class BookManagement {
 
         System.out.println("Book information:");
         book.displayData();
+    }
+
+    private static void updateBook(Scanner scanner) {
+        System.out.print("Enter book ID: ");
+        int bookId = validator.getIntInput(scanner);
+        Book book = bookBusiness.get(bookId);
+        if (book == null) {
+            System.err.println("Book not found");
+            return;
+        }
+
+        System.out.println("Book information:");
+        book.displayData();
+
+        Map<Integer, UpdateOption<Book>> updateOptions = new HashMap<>();
+        updateOptions.put(1, new UpdateOption<>("Update book title", (b, s) -> b.setBookTitle(validator.getNonEmptyStringInput(s, "Enter new book title: ", bookId))));
+        updateOptions.put(2, new UpdateOption<>("Update author", (b, s) -> b.setAuthor(validator.getNonEmptyStringInput(s, "Enter new author: "))));
+        updateOptions.put(3, new UpdateOption<>("Update price", (b, s) -> b.setPrice(validator.getPositiveFloatInput(s, "Enter new price: "))));
+        updateOptions.put(4, new UpdateOption<>("Update publication date", (b, s) -> b.setPublicationDate(validator.getDateInput(s, "Enter new publication date: "))));
+        updateOptions.put(5, new UpdateOption<>("Update category ID", (b, s) -> b.setCategoryId(validator.getValidCategoryId(s, "Enter new category ID: "))));
+
+        updateEntity(book, scanner, bookBusiness::update, updateOptions);
+    }
+
+    private static void deleteBook(Scanner scanner) {
+        System.out.print("Enter book ID: ");
+        int bookId = validator.getIntInput(scanner);
+        Book book = bookBusiness.get(bookId);
+        if (book == null) {
+            System.err.println("Book not found");
+            return;
+        }
+        bookBusiness.delete(book);
+    }
+
+    private static void listBooksByCategory(Scanner scanner) {
+        System.out.print("Enter category ID: ");
+        int categoryId = validator.getIntInput(scanner);
+
+        List<Book> books = bookBusiness.getBooksByCategory(categoryId);
+        if (books.isEmpty()) {
+            System.err.println("No books found");
+            return;
+        }
+        System.out.println("\nBooks by category:");
+        for (Book book : books) {
+            book.displayData();
+            System.out.println("====================================");
+        }
+    }
+
+    private static void sortBooks(Scanner scanner) {
+        System.out.println("\nSort by: ");
+        for (SortMenuEnum menu : SortMenuEnum.values()) {
+            System.out.println(menu.getValue() + ". " + menu.getDescription());
+        }
+        System.out.print("Please choose: ");
+        int sortBy = validator.getIntInput(scanner);
+
+        System.out.println("\nSort direction: ");
+        for (SortDirectionEnum menu : SortDirectionEnum.values()) {
+            System.out.println(menu.getValue() + ". " + menu.getDescription());
+        }
+
+        System.out.print("Please choose direction: ");
+        int direction = validator.getIntInput(scanner);
+
+        String column = switch (sortBy) {
+            case 1 -> "book_title";
+            case 2 -> "price";
+            case 3 -> "publication_date";
+            default -> throw new IllegalArgumentException("Invalid sort choice");
+        };
+
+        String dir = direction == 1 ? "ASC" : "DESC";
+        List<Book> books = bookBusiness.getBooksSorted(column, dir);
+        System.out.println("\nSorted books:");
+        for (Book book : books) {
+            book.displayData();
+            System.out.println("====================================");
+        }
+    }
+
+    private static void advancedSearch(Scanner scanner) {
+        System.out.println("\nAdvanced search (press Enter to skip any criteria): ");
+        System.out.print("Book title contains: ");
+        String title = scanner.nextLine().trim();
+        title = title.isEmpty() ? null : title;
+
+        System.out.print("Author contains: ");
+        String author = scanner.nextLine().trim();
+        author = author.isEmpty() ? null : author;
+
+        Float minPrice = null;
+        Float maxPrice = null;
+        System.out.print("Min price (optional): ");
+        String minPriceStr = scanner.nextLine().trim();
+        if (!minPriceStr.isEmpty()) {
+            minPrice = Float.parseFloat(minPriceStr);
+        }
+        System.out.print("Max price (optional): ");
+        String maxPriceStr = scanner.nextLine().trim();
+        if (!maxPriceStr.isEmpty()) {
+            maxPrice = Float.parseFloat(maxPriceStr);
+        }
+
+        Date startDate = null;
+        Date endDate = null;
+        System.out.print("Start date (optional, dd/MM/yyyy): ");
+        String startDateStr = scanner.nextLine().trim();
+        if (!startDateStr.isEmpty()) {
+            startDate = validator.getDateInput(scanner, "Enter start date (dd/MM/yyyy): ");
+        }
+
+        System.out.print("End date (optional, dd/MM/yyyy): ");
+        String endDateStr = scanner.nextLine().trim();
+        if (!endDateStr.isEmpty()) {
+            endDate = validator.getDateInput(scanner, "Enter end date (dd/MM/yyyy): ");
+        }
+
+        List<Book> books = bookBusiness.searchBooksAdvanced(title, author, minPrice, maxPrice, startDate, endDate);
+        if (books.isEmpty()) {
+            System.err.println("No books found");
+            return;
+        }
+        System.out.println("\nBooks found:");
+        for (Book book : books) {
+            book.displayData();
+            System.out.println("====================================");
+        }
     }
 
 
