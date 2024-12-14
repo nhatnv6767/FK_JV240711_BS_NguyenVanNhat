@@ -159,3 +159,38 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+
+
+
+INSERT INTO categories (category_name) VALUES
+('Lorem ipsum literature'),
+('Dolor sit philosophy'),
+('Amet consectetur fiction'),
+('Adipiscing elit science'),
+('Suspendisse history'),
+('Vestibulum technology');
+
+
+INSERT INTO books (book_title, author, publication_date, price, category_id) VALUES
+('Lorem Ipsum Dolor', 'Consectetur Adipiscing', '2022-01-15', 29.99, 1),
+('Sit Amet Collection', 'Vestibulum Suspendisse', '2021-05-20', 45.50, 1),
+('Elementum Tempus', 'Pellentesque Habitant', '2023-03-10', 35.75, 2),
+('Morbi Tristique', 'Senectus Netus', '2022-11-30', 52.25, 2),
+('Malesuada Fames', 'Turpis Egestas', '2023-07-05', 41.99, 3),
+('Primis Faucibus', 'Orci Luctus', '2021-09-22', 38.50, 3),
+('Ultrices Posuere', 'Cubilia Curae', '2023-01-18', 27.99, 4),
+('Nullam Vehicula', 'Ipsum Primis', '2022-06-14', 33.75, 4),
+('Varius Vel Pharetra', 'Augue Semper', '2023-04-30', 48.99, 5),
+('Porta Consequat', 'Mollis Integer', '2022-08-25', 39.99, 5),
+('Praesent Sapien', 'Massa Convallis', '2023-02-28', 55.50, 6),
+('Dapibus Dolor', 'Vivamus Elementum', '2021-12-10', 42.25, 6),
+('Semper Porta', 'Mattis Pulvinar', '2023-06-08', 37.99, 1),
+('Mollis Metus', 'Vestibulum Lorem', '2022-04-12', 44.50, 2),
+('Integer Aliquet', 'Consectetur Tempus', '2023-05-15', 31.75, 3),
+('Viverra Egestas', 'Pellentesque Tristique', '2022-07-20', 46.25, 4),
+('Sodales Ligula', 'Dignissim Convallis', '2023-08-01', 36.99, 5),
+('Aenean Lectus', 'Euismod Varius', '2022-10-05', 43.50, 6),
+('Proin Laoreet', 'Ultricies Integer', '2023-09-12', 49.99, 1),
+('Nulla Facilisi', 'Maecenas Tempus', '2022-03-28', 34.75, 2);

@@ -7,6 +7,9 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class BookBusiness implements DAOInterface<Book> {
 
@@ -60,16 +63,63 @@ public class BookBusiness implements DAOInterface<Book> {
 
     @Override
     public void update(Book book) {
+        if (book == null || !isValidBook(book)) {
+            System.out.println("Invalid book");
+            return;
+        }
 
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call update_book(?,?,?,?,?, ?)}");
+            callSt.setInt(1, book.getBookId());
+            callSt.setString(2, book.getBookTitle());
+            callSt.setString(3, book.getAuthor());
+            callSt.setDate(4, new java.sql.Date(book.getPublicationDate().getTime()));
+            callSt.setFloat(5, book.getPrice());
+            callSt.setInt(6, book.getCategoryId());
+            callSt.executeUpdate();
+            System.out.println("Book updated successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
     }
 
     @Override
     public void delete(Book book) {
-
+        if (book == null || book.getBookId() <= 0) {
+            System.out.println("Invalid book");
+            return;
+        }
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call delete_book(?)}");
+            callSt.setInt(1, book.getBookId());
+            callSt.executeUpdate();
+            System.out.println("Book deleted successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
     }
 
     @Override
     public Book get(int id) {
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call get_book_by_id(?)}");
+            callSt.setInt(1, id);
+            ResultSet rs = callSt.executeQuery();
+            if (rs.next()) {
+                return mapBook(rs);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
         return null;
     }
 
@@ -85,7 +135,80 @@ public class BookBusiness implements DAOInterface<Book> {
 
     @Override
     public Book[] getAll() {
-        return new Book[0];
+        List<Book> books = new ArrayList<>();
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call get_all_books()}");
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()) {
+                books.add(mapBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+        return books.toArray(new Book[0]);
+    }
+
+    public List<Book> getBooksByCategory(int categoryId) {
+        List<Book> books = new ArrayList<>();
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call get_books_by_category(?)}");
+            callSt.setInt(1, categoryId);
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()) {
+                books.add(mapBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+        return books;
+    }
+
+    public List<Book> getBooksSorted(String column, String direction) {
+        List<Book> books = new ArrayList<>();
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call get_books_sorted(?, ?)}");
+            callSt.setString(1, column);
+            callSt.setString(2, direction);
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()) {
+                books.add(mapBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+        return books;
+    }
+
+    public List<Book> searchBooksAdvanced(String title, String author, Float minPrice, Float maxPrice, Date startDate, Date endDate) {
+        List<Book> books = new ArrayList<>();
+        try {
+            openConnection();
+            callSt = conn.prepareCall("{call search_books_advanced(?, ?, ?, ?, ?, ?)}");
+            callSt.setString(1, title);
+            callSt.setString(2, author);
+            callSt.setFloat(3, minPrice != null ? minPrice : 0);
+            callSt.setFloat(4, maxPrice != null ? maxPrice : Float.MAX_VALUE);
+            callSt.setDate(5, startDate != null ? new java.sql.Date(startDate.getTime()) : null);
+            callSt.setDate(6, endDate != null ? new java.sql.Date(endDate.getTime()) : null);
+            ResultSet rs = callSt.executeQuery();
+            while (rs.next()) {
+                books.add(mapBook(rs));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection();
+        }
+        return books;
     }
 
     private boolean isValidBook(Book book) {
