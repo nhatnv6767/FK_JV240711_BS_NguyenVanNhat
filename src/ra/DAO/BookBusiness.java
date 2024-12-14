@@ -190,13 +190,22 @@ public class BookBusiness implements DAOInterface<Book> {
 
     public List<Book> searchBooksAdvanced(String title, String author, Float minPrice, Float maxPrice, Date startDate, Date endDate) {
         List<Book> books = new ArrayList<>();
+        if (minPrice != null && minPrice < 0) {
+            throw new IllegalArgumentException("Minimum price cannot be negative");
+        }
+        if (maxPrice != null && maxPrice < 0) {
+            throw new IllegalArgumentException("Maximum price cannot be negative");
+        }
+        if (minPrice != null && maxPrice != null && minPrice > maxPrice) {
+            throw new IllegalArgumentException("Minimum price cannot be greater than maximum price");
+        }
         try {
             openConnection();
             callSt = conn.prepareCall("{call search_books_advanced(?, ?, ?, ?, ?, ?)}");
             callSt.setString(1, title);
             callSt.setString(2, author);
             callSt.setFloat(3, minPrice != null ? minPrice : 0);
-            callSt.setFloat(4, maxPrice != null ? maxPrice : Float.MAX_VALUE);
+            callSt.setFloat(4, maxPrice != null ? maxPrice : 999999999);
             callSt.setDate(5, startDate != null ? new java.sql.Date(startDate.getTime()) : null);
             callSt.setDate(6, endDate != null ? new java.sql.Date(endDate.getTime()) : null);
             ResultSet rs = callSt.executeQuery();
