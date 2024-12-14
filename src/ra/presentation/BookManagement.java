@@ -137,7 +137,7 @@ public class BookManagement {
         book.displayData();
 
         Map<Integer, UpdateOption<Book>> updateOptions = new HashMap<>();
-        updateOptions.put(1, new UpdateOption<>("Update book title", (b, s) -> b.setBookTitle(validator.getNonEmptyStringInput(s, "Enter new book title: ", bookId))));
+        updateOptions.put(1, new UpdateOption<>("Update book title", (b, s) -> b.setBookTitle(validator.getNonEmptyStringInput(s, "Enter new book title: "))));
         updateOptions.put(2, new UpdateOption<>("Update author", (b, s) -> b.setAuthor(validator.getNonEmptyStringInput(s, "Enter new author: "))));
         updateOptions.put(3, new UpdateOption<>("Update price", (b, s) -> b.setPrice(validator.getPositiveFloatInput(s, "Enter new price: "))));
         updateOptions.put(4, new UpdateOption<>("Update publication date", (b, s) -> b.setPublicationDate(validator.getDateInput(s, "Enter new publication date: "))));
