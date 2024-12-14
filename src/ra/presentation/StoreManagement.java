@@ -1,10 +1,8 @@
 package ra.presentation;
 
 import ra.DAO.CategoriesBusiness;
-import ra.DAO.ProductsBusiness;
 import ra.entity.Categories;
 import ra.entity.CategoryStatistics;
-import ra.entity.Products;
 import ra.util.UpdateOption;
 import ra.validation.Validator;
 
