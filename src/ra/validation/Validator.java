@@ -14,75 +14,6 @@ public class Validator {
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 
-//    public LocalDate getDateInput(Scanner scanner, String promp) {
-////        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//        LocalDate date;
-//        while (true) {
-//            System.out.print(promp);
-//            String input = scanner.nextLine().trim();
-//            try {
-//                date = LocalDate.parse(input, formatter);
-//                if (date.getYear() > LocalDate.now().getYear()) {
-//                    System.err.println("Năm không được lớn hơn năm hiện tại");
-//                    continue;
-//                }
-////                if (LocalDate.now().getYear() - date.getYear() > 120) {
-////                    System.err.println("Tuổi không được lớn hơn 120 tuổi");
-////                    continue;
-////                }
-//
-//                if (date.getMonthValue() < 1 || date.getMonthValue() > 12) {
-//                    System.err.println("Tháng không hợp lệ");
-//                    continue;
-//                }
-//
-//                if (date.getDayOfMonth() < 1 || date.getDayOfMonth() > 31) {
-//                    System.err.println("Ngày không hợp lệ");
-//                    continue;
-//                }
-//
-//                return date;
-//            } catch (DateTimeParseException e) {
-//                System.err.println("Vui lòng nhập theo định dạng dd/MM/yyyy");
-//            }
-//        }
-//    }
-
-//    public Date getDateInput(Scanner scanner, String promp) {
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-//        Date date;
-//        while (true) {
-//            System.out.print(promp);
-//            String input = scanner.nextLine().trim();
-//            try {
-//                date = Date.parse(input, formatter);
-//                if (date.getYear() > LocalDate.now().getYear()) {
-//                    System.err.println("Năm không được lớn hơn năm hiện tại");
-//                    continue;
-//                }
-//                if (LocalDate.now().getYear() - date.getYear() > 120) {
-//                    System.err.println("Tuổi không được lớn hơn 120 tuổi");
-//                    continue;
-//                }
-//
-//                if (date.getMonthValue() < 1 || date.getMonthValue() > 12) {
-//                    System.err.println("Tháng không hợp lệ");
-//                    continue;
-//                }
-//
-//                if (date.getDayOfMonth() < 1 || date.getDayOfMonth() > 31) {
-//                    System.err.println("Ngày không hợp lệ");
-//                    continue;
-//                }
-//
-//                return date;
-//            } catch (DateTimeParseException e) {
-//                System.err.println("Vui lòng nhập theo định dạng yyyy-MM-dd");
-//            }
-//        }
-//    }
-
     public boolean getBooleanInput(Scanner scanner, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -96,31 +27,6 @@ public class Validator {
             }
         }
     }
-
-//    public String getPhoneNumberInput(Scanner scanner, String prompt) {
-//        String input;
-//        CustomerBusiness customerBusiness = new CustomerBusiness();
-//        do {
-//            System.out.print(prompt);
-//            input = scanner.nextLine().trim();
-//            if (!input.matches("\\d{11}")) {
-//                System.err.println("Số điện thoại phải gồm 11 chữ số.");
-//            } else if (isPhoneNumberDuplicate(input, customerBusiness)) {
-//                System.err.println("Số điện thoại đã tồn tại.");
-//            }
-//        } while (!input.matches("\\d{11}") || isPhoneNumberDuplicate(input, customerBusiness));
-//        return input;
-//    }
-//
-//    private boolean isPhoneNumberDuplicate(String phoneNumber, CustomerBusiness customerBusiness) {
-//        Customer[] customers = customerBusiness.getAll();
-//        for (Customer customer : customers) {
-//            if (customer.getPhoneNumber().equals(phoneNumber)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     public String getEmailInput(Scanner scanner, String prompt) {
         String input;
@@ -332,17 +238,6 @@ public class Validator {
         return false;
     }
 
-//    public boolean isProductNameDuplicate(String productName, int currentProductId) {
-//        ProductsBusiness productsBusiness = new ProductsBusiness();
-//        Products[] products = productsBusiness.getAll();
-//        for (Products product : products) {
-//            if (product.getProductName().equalsIgnoreCase(productName) && product.getProductId() != currentProductId) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
     public String getUniqueCategoryNameInput(Scanner scanner, String prompt, int currentCategoryId) {
         String input;
         do {
@@ -358,6 +253,46 @@ public class Validator {
         return input;
     }
 
+
+}
+
+//    public String getPhoneNumberInput(Scanner scanner, String prompt) {
+//        String input;
+//        CustomerBusiness customerBusiness = new CustomerBusiness();
+//        do {
+//            System.out.print(prompt);
+//            input = scanner.nextLine().trim();
+//            if (!input.matches("\\d{11}")) {
+//                System.err.println("Số điện thoại phải gồm 11 chữ số.");
+//            } else if (isPhoneNumberDuplicate(input, customerBusiness)) {
+//                System.err.println("Số điện thoại đã tồn tại.");
+//            }
+//        } while (!input.matches("\\d{11}") || isPhoneNumberDuplicate(input, customerBusiness));
+//        return input;
+//    }
+//
+//    private boolean isPhoneNumberDuplicate(String phoneNumber, CustomerBusiness customerBusiness) {
+//        Customer[] customers = customerBusiness.getAll();
+//        for (Customer customer : customers) {
+//            if (customer.getPhoneNumber().equals(phoneNumber)) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+
+//    public boolean isProductNameDuplicate(String productName, int currentProductId) {
+//        ProductsBusiness productsBusiness = new ProductsBusiness();
+//        Products[] products = productsBusiness.getAll();
+//        for (Products product : products) {
+//            if (product.getProductName().equalsIgnoreCase(productName) && product.getProductId() != currentProductId) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
 //    public String getUniqueProductNameInput(Scanner scanner, String prompt, int currentProductId) {
 //        String input;
 //        do {
@@ -372,4 +307,72 @@ public class Validator {
 //        } while (isProductNameDuplicate(input, currentProductId));
 //        return input;
 //    }
-}
+
+//    public LocalDate getDateInput(Scanner scanner, String promp) {
+////        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//        LocalDate date;
+//        while (true) {
+//            System.out.print(promp);
+//            String input = scanner.nextLine().trim();
+//            try {
+//                date = LocalDate.parse(input, formatter);
+//                if (date.getYear() > LocalDate.now().getYear()) {
+//                    System.err.println("Năm không được lớn hơn năm hiện tại");
+//                    continue;
+//                }
+////                if (LocalDate.now().getYear() - date.getYear() > 120) {
+////                    System.err.println("Tuổi không được lớn hơn 120 tuổi");
+////                    continue;
+////                }
+//
+//                if (date.getMonthValue() < 1 || date.getMonthValue() > 12) {
+//                    System.err.println("Tháng không hợp lệ");
+//                    continue;
+//                }
+//
+//                if (date.getDayOfMonth() < 1 || date.getDayOfMonth() > 31) {
+//                    System.err.println("Ngày không hợp lệ");
+//                    continue;
+//                }
+//
+//                return date;
+//            } catch (DateTimeParseException e) {
+//                System.err.println("Vui lòng nhập theo định dạng dd/MM/yyyy");
+//            }
+//        }
+//    }
+
+//    public Date getDateInput(Scanner scanner, String promp) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//        Date date;
+//        while (true) {
+//            System.out.print(promp);
+//            String input = scanner.nextLine().trim();
+//            try {
+//                date = Date.parse(input, formatter);
+//                if (date.getYear() > LocalDate.now().getYear()) {
+//                    System.err.println("Năm không được lớn hơn năm hiện tại");
+//                    continue;
+//                }
+//                if (LocalDate.now().getYear() - date.getYear() > 120) {
+//                    System.err.println("Tuổi không được lớn hơn 120 tuổi");
+//                    continue;
+//                }
+//
+//                if (date.getMonthValue() < 1 || date.getMonthValue() > 12) {
+//                    System.err.println("Tháng không hợp lệ");
+//                    continue;
+//                }
+//
+//                if (date.getDayOfMonth() < 1 || date.getDayOfMonth() > 31) {
+//                    System.err.println("Ngày không hợp lệ");
+//                    continue;
+//                }
+//
+//                return date;
+//            } catch (DateTimeParseException e) {
+//                System.err.println("Vui lòng nhập theo định dạng yyyy-MM-dd");
+//            }
+//        }
+//    }
